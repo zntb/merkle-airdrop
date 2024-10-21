@@ -10,7 +10,7 @@ import {ZkSyncChainChecker} from "foundry-devops/src/ZkSyncChainChecker.sol";
 contract MerkleAirdropTest is ZkSyncChainChecker, Test {
     MerkleAirdrop airdrop;
     BagelToken token;
-    address gasPayer;
+    address public gasPayer;
     address user;
     uint256 userPrivKey;
 
@@ -22,6 +22,7 @@ contract MerkleAirdropTest is ZkSyncChainChecker, Test {
     bytes32[] public PROOF = [proofOne, proofTwo];
 
     bytes32 merkleRoot = 0xaa5d581231e596618465a56aa0f5870ba6e20785fe436d5bfb82b08662ccc7c4;
+    uint256 amountToCollect = (25 * 1e18); // 25.000000
 
     function setUp() public {
         if (!isZkSyncChain()) {
@@ -37,11 +38,20 @@ contract MerkleAirdropTest is ZkSyncChainChecker, Test {
         (user, userPrivKey) = makeAddrAndKey("user");
     }
 
+    // function signMessage(uint256 privKey, address account) public view returns (uint8 v, bytes32 r, bytes32 s) {
+    //     bytes32 hashedMessage = airdrop.getMessageHash(account, amountToCollect);
+    //     (v, r, s) = vm.sign(privKey, hashedMessage);
+    // }
+
     function testUsersCanClaim() public {
         uint256 startingBalance = token.balanceOf(user);
+        bytes32 digest = airdrop.getMessageHash(user, AMOUNT_TO_CLAIM);
 
-        vm.prank(user);
-        airdrop.claim(user, AMOUNT_TO_CLAIM, PROOF);
+        // sign a message
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(userPrivKey, digest);
+        // gasPayer calls claim, using the signed message
+        vm.prank(gasPayer);
+        airdrop.claim(user, AMOUNT_TO_CLAIM, PROOF, v, r, s);
 
         uint256 endingBalance = token.balanceOf(user);
         console.log("Ending balance: ", endingBalance);
