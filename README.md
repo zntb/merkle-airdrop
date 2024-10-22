@@ -72,3 +72,15 @@ cast call 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512 "getMessageHash(address,uin
 
 cast wallet sign --no-hash 0x184e30c4b19f5e304a89352421dc50346dad61c461e79155b910e73fd856dc72 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
 ```
+
+Deploy in ZKSync:
+
+```shell
+foundryup-zksync
+```
+
+Creating a Local node:
+
+```shell
+chmod +x interactZk.sh && ./interactZk.sh
+```
